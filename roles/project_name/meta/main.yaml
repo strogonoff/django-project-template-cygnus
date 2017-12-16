@@ -1,0 +1,127 @@
+---
+dependencies:
+
+  - role: postgresql
+    tags: [db]
+    become: yes
+    postgresql_version: 9.6
+    postgresql_databases:
+      - name: "{{ db_name }}"
+        owner: "{{ db_user_name }}"
+    postgresql_users:
+      - name: "{{ db_user_name }}"
+        pass: "{{ db_user_pass }}"
+        encrypted: no
+    postgresql_user_privileges:
+      - name: "{{ db_user_name }}"
+        db: "{{ db_name }}"
+        priv: "ALL"
+        role_attr_flags: "CREATEDB"
+    postgresql_database_extensions:
+      - db: "{{ db_name }}"
+        extensions:
+          - postgis
+          - hstore
+    postgresql_ext_install_postgis: yes
+    postgresql_ext_postgis_version: 2.3
+    postgresql_ext_postgis_deps:
+      - libgeos-c1v5
+      - "postgresql-{{postgresql_version}}-postgis-{{postgresql_ext_postgis_version}}"
+      - "postgresql-{{postgresql_version}}-postgis-scripts"
+
+  - role: django_project
+    tags: [django]
+    become: yes
+    become_user: "{{ user }}"
+
+    django_local_repo_root: "{{ playbook_dir }}"
+    django_push_mode: "{{ push_mode }}"
+    django_whitelisted_hosts:
+      - "{{ domain_name }}"
+      - "{{ ansible_host }}"
+    django_ssl: "{{ ssl }}"
+    django_root: "{{ project_home }}"
+    django_app_root: "{{ repo_root }}"
+    django_project_module: "{{ module_name }}"
+    django_pip_dependencies: "{{ repo_root }}/requirements.txt"
+    django_secret_key: "{{ secret }}"
+
+    django_db:
+      backend: django.contrib.gis.db.backends.postgis
+      name: "{{ db_name }}"
+      user: "{{ db_user_name }}"
+      password: "{{ db_user_pass }}"
+      host: localhost
+
+    django_static_root: "{{ static_root }}"
+    django_static_url: "{{ static_url }}/"
+
+    django_debug: "{{ unsafe_debug }}"
+    django_log_file:
+      min_level: "{{ log_level }}"
+      errors: "{{ logs_root }}/django-errors.log"
+      non_errors: "{{ logs_root }}/django.log"
+    django_admins: "{{ notify_about_errors }}"
+    django_managers: "{{ notify_about_broken_links }}"
+
+    django_initial_data_fixture:
+      load: "{{ load_initial_data }}"
+      path: "{{ repo_root }}/{{ module_name }}/fixtures/initial.json"
+
+    django_settings_extra: |
+      MAIN_DOMAIN_NAME = '{{ domain_name }}'
+      EMAIL_TIMEOUT = 60
+      CSRF_TRUSTED_ORIGINS = ['localhost', '{{ domain_name }}', '.{{ domain_name }}']
+      MEDIA_ROOT = '{{ uploads_root }}'
+      MEDIA_URL = '{{ uploads_url }}/'
+      PRIVATE_APPLICATION_UPLOADS_ROOT = '{{ private_application_uploads_root }}'
+      PRIVATE_APPLICATION_UPLOADS_URL = '{{ private_application_uploads_url }}/'
+
+  - role: wsgi_server
+    tags: [wsgi]
+    wsgi_conf_name: "webapp"
+    wsgi_app_module: "{{ module_name }}.wsgi"
+    wsgi_sock_path: "{{ gunicorn_socket_path }}"
+    wsgi_worker_count: 3
+    wsgi_timeout_sec: 30
+    wsgi_working_dir: "{{ repo_root }}"
+    wsgi_pythonpath: "{{ repo_root }}"
+    wsgi_run_as:
+      user: "{{ user }}"
+      group: "{{ group }}"
+    wsgi_log:
+      access: "{{ logs_root }}/gunicorn-access.log"
+      error: "{{ logs_root }}/gunicorn-error.log"
+    wsgi_gunicorn_loglevel: "{{ log_level }}"
+
+  - role: web_frontend
+    tags: [frontend]
+    become: yes
+    frontend_config_name: "webapp"
+    frontend_whitelisted_hosts: "{{ domain_name }} {{ ansible_host }}"
+    frontend_upstream:
+      name: "{{ domain_name|to_uuid }}"
+      socket_path: "{{ gunicorn_socket_path }}"
+    frontend_log:
+      access: "{{ logs_root }}/nginx-access.log"
+      error: "{{ logs_root }}/nginx-error.log"
+    frontend_static_locations:
+      - url_path: "{{ private_application_uploads_url }}/"
+        filesystem_alias: "{{ private_application_uploads_root }}/"
+        internal: yes
+      - url_path: "{{ static_url }}/"
+        filesystem_alias: "{{ static_root }}/"
+        cache: forever
+      - url_path: "{{ uploads_url }}/"
+        filesystem_alias: "{{ uploads_root }}/"
+        cache: never
+    frontend_50x_html_path: "{{ repo_root }}/{{ module_name }}/static_pages/50x.html"
+
+    frontend_ssl:
+      domain: "{{ domain_name }}"
+      enabled: "{{ ssl }}"
+      certbot:
+        active: "{{ ssl_letsencrypt }}"
+        email: "{{ ssl_email }}"
+    frontend_csp: "{{ csp }}"
+    frontend_nginx_default_root: /var/www/html

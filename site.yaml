@@ -1,0 +1,5 @@
+---
+- hosts: all
+  roles: [{{ project_name }}]
+  vars_files:
+    - "{{ inventory_dir }}/vars.yaml"

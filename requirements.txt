@@ -1,0 +1,12 @@
+Django==1.11
+dateparser
+django-paypal==0.3.6
+git+https://github.com/strogonoff/dj-pagination.git@18ba66389ca9373bff999fc0f773dcf01f5a6ed4
+gspread==0.6.2
+orderedset
+Pillow
+psycopg2==2.7.1
+pyquery
+pylint
+python-magic
+requests

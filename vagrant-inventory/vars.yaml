@@ -1,0 +1,35 @@
+---
+domain_name: localhost
+
+secret: "{{ secret_key }}"
+# Required. Make this a really random and long string
+
+db_user_pass: "{{ db_user_pass }}"
+
+user: ubuntu
+group: ubuntu
+
+unsafe_debug: yes
+# High security risk. Don’t use in production
+
+log_level: debug
+
+ssl: no
+ssl_letsencrypt: no
+ssl_email:
+# SSL certificates can’t be issued on local hostnames, so
+# leave this disabled
+
+push_mode: none
+# Code is not pushed, since working directory
+# is mirrored within virtual machine
+
+notify_about_errors:
+
+notify_about_broken_links:
+
+cors_origin_whitelist: ['localhost']
+
+session_cookie:
+
+csp:

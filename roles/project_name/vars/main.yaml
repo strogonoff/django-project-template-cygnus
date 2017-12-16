@@ -1,0 +1,27 @@
+---
+project_home: /home/{{ user }}/webapp
+module_name: djproj
+repo_root: "{{ project_home }}/src"
+logs_root: "{{ project_home }}"
+
+static_root: "{{ project_home }}/static"
+static_url: /static
+
+uploads_root: "{{ project_home }}/uploads"
+uploads_url: /uploads
+
+gunicorn_socket_path: /var/run/gunicorn/{{ domain_name|to_uuid }}.sock
+db_name: webapp
+db_user_name: webapp
+
+private_application_uploads_url: /protected-uploads
+private_application_uploads_root: "{{ project_home }}/private_application_uploads"
+
+
+# These would typically be overridden via -e flag where needed:
+
+load_initial_data: no
+
+maintenance_on_globally: no
+maintenance_on_for_staff: no
+maintenance_on_for_users: no
