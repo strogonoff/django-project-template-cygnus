@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
   config.vm.box_check_update = false
 
   config.vm.synced_folder ".", "/vagrant", disabled: true
-  config.vm.synced_folder "..", "/home/ubuntu/{{ project_name }}", owner: "ubuntu", group: "ubuntu", create: true
+  config.vm.synced_folder "..", "/home/ubuntu/webapp", owner: "ubuntu", group: "ubuntu", create: true
 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = "1024"
