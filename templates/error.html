@@ -1,0 +1,20 @@
+{% extends "bare.html" %}
+
+{% block main_header_content %}
+{% block error_title %}Error{% endblock %}
+{% endblock %}
+
+{% block main_content %}
+<p>
+Whoops.
+{% block error_description %}{% endblock %}
+<p>
+Engineers were notified and are on it.
+{% block error_actions %}
+<p>
+<a href="javascript: history.back()">Go back</a>
+or
+<a href="/">Go to the main page</a>
+{% endblock %}
+{% endblock %}
+
