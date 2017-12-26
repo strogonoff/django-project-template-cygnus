@@ -24,9 +24,9 @@ push_mode: none
 # Code is not pushed, since working directory
 # is mirrored within virtual machine
 
-notify_about_errors:
+notify_about_errors: []
 
-notify_about_broken_links:
+notify_about_broken_links: []
 
 cors_origin_whitelist: ['localhost']
 
