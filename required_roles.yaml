@@ -1,7 +1,7 @@
 ---
 
 - src: git+https://github.com/strogonoff/ansible-django-project.git
-  version: v0.4.3
+  version: v0.4.5
   name: django_project
 
 - src: git+https://github.com/strogonoff/ansible-wsgi-server.git
