@@ -90,5 +90,5 @@ USE_TZ = True
 
 STATICFILES_DIRS = [
     ('static', os.path.join(BASE_DIR, 'static')),
-    ('node_modules', os.path.join(BASE_DIR, 'node_modules')),
+    # ('node_modules', os.path.join(BASE_DIR, 'node_modules')),
 ]
